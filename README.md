@@ -2,7 +2,7 @@
 
 **Automated Root Cause Analysis & Optimization for Databricks Workloads**
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=Databricks+PS+Log+Analyzer+Dashboard)
+![Dashboard Preview](docs/images/dashboard_preview.png)
 
 ## 🚀 Overview
 
