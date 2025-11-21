@@ -1,0 +1,21 @@
+{
+    "run_id": 1004,
+    "job_id": 502,
+    "run_name": "ML Training Pipeline",
+    "status": "FAILED",
+    "start_time": 1678976400000,
+    "error": "TimeoutException: The job exceeded the maximum duration of 60 minutes.",
+    "tasks": [
+        {
+            "task_key": "feature_eng",
+            "status": "SUCCESS",
+            "duration_ms": 1200000
+        },
+        {
+            "task_key": "train_model",
+            "status": "FAILED",
+            "error_message": "TimeoutException: Execution timed out.",
+            "sql_query": null
+        }
+    ]
+}

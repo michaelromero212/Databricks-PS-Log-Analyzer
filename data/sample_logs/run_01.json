@@ -1,0 +1,21 @@
+{
+    "run_id": 1001,
+    "job_id": 500,
+    "run_name": "Nightly ETL - Sales",
+    "status": "FAILED",
+    "start_time": 1678886400000,
+    "error": "AnalysisException: [UNRESOLVED_COLUMN] A column or function parameter with name `customer_id` cannot be resolved. Did you mean one of the following: [`id`, `name`]",
+    "tasks": [
+        {
+            "task_key": "ingest_data",
+            "status": "SUCCESS",
+            "duration_ms": 12000
+        },
+        {
+            "task_key": "transform_sales",
+            "status": "FAILED",
+            "error_message": "AnalysisException: [UNRESOLVED_COLUMN] A column or function parameter with name `customer_id` cannot be resolved.",
+            "sql_query": "SELECT t.id, t.amount, c.name FROM transactions t JOIN customers c ON t.customer_id = c.id"
+        }
+    ]
+}

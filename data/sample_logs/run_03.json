@@ -1,0 +1,23 @@
+{
+    "run_id": 1003,
+    "job_id": 500,
+    "run_name": "Nightly ETL - Sales",
+    "status": "SUCCESS",
+    "start_time": 1678972800000,
+    "tasks": [
+        {
+            "task_key": "ingest_data",
+            "status": "SUCCESS",
+            "duration_ms": 11000
+        },
+        {
+            "task_key": "transform_sales",
+            "status": "SUCCESS",
+            "duration_ms": 45000,
+            "metrics": {
+                "spill_to_disk": "5GB",
+                "shuffle_read": "20GB"
+            }
+        }
+    ]
+}

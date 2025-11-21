@@ -1,0 +1,19 @@
+{
+    "run_id": 1002,
+    "job_id": 501,
+    "run_name": "Ad-hoc Analytics",
+    "status": "SUCCESS",
+    "start_time": 1678890000000,
+    "tasks": [
+        {
+            "task_key": "run_query",
+            "status": "SUCCESS",
+            "duration_ms": 450000,
+            "metrics": {
+                "shuffle_read": "500GB",
+                "spill_to_disk": "120GB"
+            },
+            "sql_query": "SELECT * FROM clickstream c JOIN users u ON c.user_id = u.id"
+        }
+    ]
+}

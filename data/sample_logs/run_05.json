@@ -1,0 +1,17 @@
+{
+    "run_id": 1005,
+    "job_id": 501,
+    "run_name": "Ad-hoc Analytics",
+    "status": "SUCCESS",
+    "start_time": 1678980000000,
+    "tasks": [
+        {
+            "task_key": "run_query",
+            "status": "SUCCESS",
+            "duration_ms": 12000,
+            "metrics": {
+                "shuffle_read": "100MB"
+            }
+        }
+    ]
+}
