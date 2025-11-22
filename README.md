@@ -4,14 +4,14 @@
 
 ![Dashboard Overview](docs/images/dashboard_overview.png)
 
-## 🚀 Overview
+## Overview
 
 Consultants often lose hours triaging logs and query failures. This tool automates the first-pass root cause analysis by:
 1.  **Parsing Logs**: Instantly identifying error types and stack traces.
 2.  **Analyzing SQL**: Detecting common anti-patterns (Cartesian joins, full table scans).
 3.  **AI Recommendations**: Using local LLMs to suggest fixes and optimizations.
 
-## 📊 Interactive Dashboard
+## Interactive Dashboard
 
 The dashboard provides a modern, accessible interface for analyzing Databricks workloads with WCAG AA compliant design and full responsive support for desktop, tablet, and mobile devices.
 
@@ -39,7 +39,15 @@ Deep dive into specific job failures with AI-assisted root cause analysis:
 
 ![Job Runs Analysis](docs/images/dashboard_job_runs.png)
 
-## 💼 Value for Professional Services Teams
+### Notebook Code Scanner
+Comprehensive code quality analysis for Databricks notebooks:
+- **Best Practice Detection**: Identifies common anti-patterns in notebook code
+- **Code Quality Checks**: Validates adherence to Databricks best practices
+- **Automated Review**: Quickly scan notebooks for potential issues
+
+![Notebook Analysis](docs/images/dashboard_notebook_analysis.png)
+
+## Value for Professional Services Teams
 
 ### Time Savings
 - **Reduce Triage Time**: What took 2-3 hours now takes 10 minutes
@@ -62,7 +70,7 @@ Deep dive into specific job failures with AI-assisted root cause analysis:
 3. **Performance Troubleshooting**: Quick identification of bottlenecks
 4. **Best Practice Reviews**: Validate code quality across notebooks
 
-## 🛠️ Setup
+## Setup
 
 1.  **Create Virtual Environment**:
     ```bash
@@ -81,7 +89,7 @@ Deep dive into specific job failures with AI-assisted root cause analysis:
     cp .env.example .env
     ```
 
-## 📊 Running the Dashboard
+## Running the Dashboard
 
 Launch the interactive analysis dashboard:
 
@@ -89,7 +97,7 @@ Launch the interactive analysis dashboard:
 streamlit run src/dashboard.py
 ```
 
-## 💻 CLI Usage
+## CLI Usage
 
 Run analysis from the command line:
 
@@ -101,13 +109,13 @@ python src/run_analysis.py --local-sample
 python src/run_analysis.py --latest
 ```
 
-## 🧠 How It Works
+## How It Works
 
 -   **Log Parser**: Scans JSON output from Databricks Jobs API for failure states and spill-to-disk metrics.
 -   **SQL Rules**: Uses static analysis to catch `SELECT *`, missing `WHERE` clauses, and cross joins.
 -   **AI Engine**: Uses `distilgpt2` (running locally) to generate human-readable summaries of complex Java/Spark stack traces.
 
-## 🔮 Future Roadmap
+## Future Roadmap
 
 -   Integration with Databricks Repos for direct code fixes.
 -   Auto-generation of Pull Requests with suggested optimizations.

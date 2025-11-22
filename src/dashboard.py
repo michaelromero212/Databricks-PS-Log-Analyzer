@@ -11,7 +11,7 @@ from ai_analysis import AIAnalyzer
 # --- Page Configuration ---
 st.set_page_config(
     page_title="Databricks PS Log Analyzer",
-    page_icon="📊",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -501,7 +501,7 @@ def analyze_run_cached(log_data):
 
 # --- Sidebar ---
 with st.sidebar:
-    st.title("🔍 Log Analyzer")
+    st.title("Log Analyzer")
     st.caption("Databricks Professional Services")
     
     st.markdown("### Navigation")
@@ -554,7 +554,7 @@ if mode == "Overview":
         with col4:
             st.metric("Optimization Tips", "5 New", delta="High Priority", delta_color="off")
         
-        st.markdown("### 📊 Performance Trends")
+        st.markdown("### Performance Trends")
         
         # Responsive chart height based on screen size
         # Streamlit doesn't have direct viewport access, but we use container_width
@@ -640,7 +640,7 @@ if mode == "Overview":
             )
             st.plotly_chart(fig_pie, use_container_width=True)
 
-        st.markdown("### 📋 Recent Runs")
+        st.markdown("### Recent Runs")
         st.dataframe(
             run_df[['run_id', 'run_name', 'status', 'start_time_dt']].sort_values('start_time_dt', ascending=False),
             use_container_width=True,
@@ -654,7 +654,7 @@ if mode == "Overview":
         )
 
 elif mode == "Job Runs":
-    st.title("🚀 Job Run Analysis")
+    st.title("Job Run Analysis")
     st.markdown("<p style='font-size: 1.1rem; color: #64748b; margin-bottom: 2rem;'>Deep dive into specific job runs with detailed error analysis and AI-powered insights.</p>", unsafe_allow_html=True)
     
     # Use cached data loading
@@ -677,7 +677,7 @@ elif mode == "Job Runs":
             findings = analyze_run_cached(log_data)
             
             if not findings:
-                st.success("✅ No critical issues found in this run.")
+                st.success("No critical issues found in this run.")
             
             for f in findings:
                 with st.container():
@@ -699,10 +699,10 @@ elif mode == "Job Runs":
                             st.code(f['details'], language="text")
                             
                             if f['severity'] == 'high':
-                                st.info("🤖 **AI Insight:** " + get_ai_insight(f['details']))
+                                st.info("**AI Insight:** " + get_ai_insight(f['details']))
 
 elif mode == "SQL Analysis":
-    st.title("⚡ SQL Workload Optimization")
+    st.title("SQL Workload Optimization")
     st.markdown("<p style='font-size: 1.1rem; color: #64748b; margin-bottom: 2rem;'>Advanced static analysis to identify performance bottlenecks and optimization opportunities.</p>", unsafe_allow_html=True)
     
     # Cache file listings to avoid repeated directory scans
@@ -732,7 +732,7 @@ elif mode == "SQL Analysis":
             res = engine.analyze_sql_file(path)
             
             if not res['recommendations']:
-                st.success("✅ Clean SQL! No common anti-patterns detected.")
+                st.success("Clean SQL! No common anti-patterns detected.")
             
             for r in res['recommendations']:
                 severity_class = "badge-high" if r['severity'] == "high" else "badge-medium"
@@ -747,13 +747,13 @@ elif mode == "SQL Analysis":
                 """, unsafe_allow_html=True)
                 
             st.markdown("---")
-            if st.button("✨ Ask AI to Optimize Query"):
+            if st.button("Ask AI to Optimize Query"):
                 with st.spinner("Analyzing..."):
                     suggestion = ai.suggest_optimization(content)
                     st.success(suggestion)
 
 elif mode == "Notebook Analysis":
-    st.title("📓 Notebook Code Scanner")
+    st.title("Notebook Code Scanner")
     st.markdown("<p style='font-size: 1.1rem; color: #475569; margin-bottom: 2rem;'>Comprehensive code quality analysis for Databricks notebooks.</p>", unsafe_allow_html=True)
     
     # Cache file listings
@@ -771,7 +771,7 @@ elif mode == "Notebook Analysis":
         st.markdown(f"#### Analysis Results for `{selected_file}`")
         
         if not res['findings']:
-            st.success("✅ No issues found.")
+            st.success("No issues found.")
             
         for f in res['findings']:
             st.warning(f"**{f['description']}**\n\n{f['recommendation']}")
