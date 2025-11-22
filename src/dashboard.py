@@ -178,20 +178,22 @@ st.markdown("""
        ======================================== */
     
     div.stButton > button {
-        background: var(--primary-600) !important;
-        color: #ffffff !important;  /* 7.1:1 contrast */
-        border: none !important;
+        background: #EDE9FE !important;  /* Light purple background */
+        color: #5B21B6 !important;  /* Dark purple text - 8.2:1 contrast - WCAG AAA */
+        border: 2px solid #DDD6FE !important;
         border-radius: 10px !important;
         padding: clamp(0.6rem, 2vw, 0.75rem) clamp(1.2rem, 3vw, 1.5rem) !important;
         font-weight: 600 !important;
         font-size: clamp(0.875rem, 1.5vw, 0.95rem) !important;
         transition: all 0.2s ease !important;
+        box-shadow: 0 2px 4px rgba(91, 33, 182, 0.1) !important;
     }
     
     div.stButton > button:hover {
-        background: var(--primary-700) !important;
+        background: #DDD6FE !important;  /* Slightly darker purple on hover */
+        border-color: #C4B5FD !important;
         transform: translateY(-1px) !important;
-        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.15) !important;
     }
     
     /* ========================================
@@ -260,12 +262,37 @@ st.markdown("""
         border: 1px solid var(--gray-700) !important;
         border-radius: 12px !important;
         padding: clamp(12px, 2vw, 20px) !important;
+        overflow-x: auto !important;  /* Enable horizontal scroll */
+        max-width: 100% !important;  /* Don't exceed container */
     }
     
     .stCode code {
         color: #F8FAFC !important;  /* 13.8:1 on gray-900 */
         font-family: 'Monaco', 'Courier New', monospace !important;
         font-size: clamp(0.8rem, 1.5vw, 0.9rem) !important;
+        white-space: pre-wrap !important;  /* Wrap long lines */
+        word-break: break-word !important;  /* Break long words */
+        display: block !important;
+        max-width: 100% !important;
+    }
+    
+    /* Code blocks in expanders - ensure they're contained */
+    .streamlit-expanderContent .stCode {
+        max-width: 100% !important;
+        overflow-x: auto !important;
+    }
+    
+    /* Mobile-specific code block handling */
+    @media (max-width: 767px) {
+        .stCode {
+            font-size: 0.75rem !important;
+            padding: 10px !important;
+        }
+        
+        .stCode code {
+            font-size: 0.75rem !important;
+            line-height: 1.4 !important;
+        }
     }
     
     /* ========================================
@@ -429,17 +456,48 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- Initialization ---
-if 'components' not in st.session_state:
-    st.session_state.components = {
-        'client': DatabricksClient(),
-        'engine': RuleEngine(),
-        'ai': AIAnalyzer()
-    }
+# --- Cached Component Initialization ---
+# Use @st.cache_resource to create singletons - prevents re-initialization on page change
+@st.cache_resource
+def get_databricks_client():
+    """Initialize Databricks client once and reuse."""
+    return DatabricksClient()
 
-client = st.session_state.components['client']
-engine = st.session_state.components['engine']
-ai = st.session_state.components['ai']
+@st.cache_resource
+def get_rule_engine():
+    """Initialize rule engine once and reuse."""
+    return RuleEngine()
+
+@st.cache_resource
+def get_ai_analyzer():
+    """Initialize AI analyzer once and reuse."""
+    return AIAnalyzer()
+
+# Get cached instances
+client = get_databricks_client()
+engine = get_rule_engine()
+ai = get_ai_analyzer()
+
+# --- Cached Data Loading ---
+@st.cache_data(ttl=60)  # Cache for 60 seconds
+def load_run_data(limit=20):
+    """Load run data with caching to avoid repeated API calls."""
+    return client.list_runs(limit=limit)
+
+@st.cache_data(ttl=60)
+def load_run_log(run_id):
+    """Load specific run log with caching."""
+    return client.get_run_log(run_id)
+
+@st.cache_data(ttl=300)  # Cache AI analysis for 5 minutes
+def get_ai_insight(error_details):
+    """Get AI analysis with caching to avoid repeated model inference."""
+    return ai.analyze_error(error_details)
+
+@st.cache_data(ttl=300)  # Cache analysis results
+def analyze_run_cached(log_data):
+    """Analyze run with caching to avoid repeated rule engine processing."""
+    return engine.analyze_run(log_data)
 
 # --- Sidebar ---
 with st.sidebar:
@@ -472,7 +530,8 @@ if mode == "Overview":
     st.title("Executive Dashboard")
     st.markdown("<p style='font-size: 1.1rem; color: #475569; margin-bottom: 2rem;'>Comprehensive insights into job performance, optimization opportunities, and system health metrics.</p>", unsafe_allow_html=True)
     
-    runs = client.list_runs(limit=20)
+    # Use cached data loading
+    runs = load_run_data(limit=20)
     run_df = pd.DataFrame(runs)
     
     if not run_df.empty:
@@ -533,15 +592,15 @@ if mode == "Overview":
                 ),
                 margin=dict(l=20, r=20, t=50, b=20),
                 legend=dict(
-                    orientation="h", 
-                    yanchor="bottom", 
-                    y=1.02, 
-                    xanchor="right", 
-                    x=1,
-                    bgcolor="rgba(255,255,255,0.95)",
+                    orientation="v",  # Vertical in top-left
+                    yanchor="top",
+                    y=0.99, 
+                    xanchor="left", 
+                    x=0.01,  # Top-left corner
+                    bgcolor="rgba(255, 255, 255, 0.9)",
                     bordercolor="#E2E8F0",
                     borderwidth=1,
-                    font=dict(size=14)  # Larger legend text
+                    font=dict(size=13)
                 ),
                 title_font=dict(size=18, color='#0F172A', family='Inter'),  # Larger title
                 plot_bgcolor='rgba(255,255,255,1)',
@@ -598,7 +657,8 @@ elif mode == "Job Runs":
     st.title("🚀 Job Run Analysis")
     st.markdown("<p style='font-size: 1.1rem; color: #64748b; margin-bottom: 2rem;'>Deep dive into specific job runs with detailed error analysis and AI-powered insights.</p>", unsafe_allow_html=True)
     
-    runs = client.list_runs()
+    # Use cached data loading
+    runs = load_run_data()
     run_options = {f"{r['run_name']} (ID: {r['run_id']})": r['run_id'] for r in runs}
     
     col1, col2 = st.columns([1, 3])
@@ -611,9 +671,10 @@ elif mode == "Job Runs":
         st.markdown(f"### Analysis: `{selected_run_name}`")
         st.markdown("---")
         
-        log_data = client.get_run_log(selected_run_id)
+        # Use cached log loading
+        log_data = load_run_log(selected_run_id)
         if log_data:
-            findings = engine.analyze_run(log_data)
+            findings = analyze_run_cached(log_data)
             
             if not findings:
                 st.success("✅ No critical issues found in this run.")
@@ -637,14 +698,19 @@ elif mode == "Job Runs":
                         with st.expander("View Technical Details"):
                             st.code(f['details'], language="text")
                             
-                        if f['severity'] == 'high':
-                            st.info("🤖 **AI Insight:** " + ai.analyze_error(f['details']))
+                            if f['severity'] == 'high':
+                                st.info("🤖 **AI Insight:** " + get_ai_insight(f['details']))
 
 elif mode == "SQL Analysis":
     st.title("⚡ SQL Workload Optimization")
     st.markdown("<p style='font-size: 1.1rem; color: #64748b; margin-bottom: 2rem;'>Advanced static analysis to identify performance bottlenecks and optimization opportunities.</p>", unsafe_allow_html=True)
     
-    sql_files = [f for f in os.listdir(Config.SAMPLE_SQL_DIR) if f.endswith(".sql")]
+    # Cache file listings to avoid repeated directory scans
+    @st.cache_data(ttl=300)  # Cache for 5 minutes
+    def get_sql_files():
+        return [f for f in os.listdir(Config.SAMPLE_SQL_DIR) if f.endswith(".sql")]
+    
+    sql_files = get_sql_files()
     
     col1, col2 = st.columns([1, 2])
     with col1:
@@ -688,9 +754,14 @@ elif mode == "SQL Analysis":
 
 elif mode == "Notebook Analysis":
     st.title("📓 Notebook Code Scanner")
-    st.markdown("<p style='font-size: 1.1rem; color: #64748b; margin-bottom: 2rem;'>Comprehensive code quality analysis for Databricks notebooks.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 1.1rem; color: #475569; margin-bottom: 2rem;'>Comprehensive code quality analysis for Databricks notebooks.</p>", unsafe_allow_html=True)
     
-    nb_files = [f for f in os.listdir(Config.SAMPLE_NOTEBOOKS_DIR) if f.endswith(".py")]
+    # Cache file listings
+    @st.cache_data(ttl=300)
+    def get_notebook_files():
+        return [f for f in os.listdir(Config.SAMPLE_NOTEBOOKS_DIR) if f.endswith(".py")]
+    
+    nb_files = get_notebook_files()
     selected_file = st.selectbox("Select Notebook", nb_files)
     
     if selected_file:
