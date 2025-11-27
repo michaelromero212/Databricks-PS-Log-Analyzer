@@ -412,79 +412,93 @@
             };
 
             // Chart 1: Customer Issues by Category
-            if (charts.issues) charts.issues.destroy();
-            const ctx1 = document.getElementById('issuesCategoryChart').getContext('2d');
-            charts.issues = new Chart(ctx1, {
-                type: 'bar',
-                data: {
-                    labels: ['Performance Tuning', 'Schema Migration', 'Data Quality', 'Cost Optimization', 'Security Config', 'Integration'],
-                    datasets: [{
-                        label: 'Active Issues',
-                        data: [15, 12, 8, 6, 4, 3],
-                        backgroundColor: '#3b82f6'
-                    }]
-                },
-                options: { ...chartDefaults, plugins: { legend: { display: false } } }
-            });
+            if (charts.issues) {
+                // In a real app, we would update data here based on 'runs'
+                // charts.issues.data.datasets[0].data = newData;
+                charts.issues.update('none'); // 'none' mode prevents full re-animation on every refresh
+            } else {
+                const ctx1 = document.getElementById('issuesCategoryChart').getContext('2d');
+                charts.issues = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Performance Tuning', 'Schema Migration', 'Data Quality', 'Cost Optimization', 'Security Config', 'Integration'],
+                        datasets: [{
+                            label: 'Active Issues',
+                            data: [15, 12, 8, 6, 4, 3],
+                            backgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: { ...chartDefaults, plugins: { legend: { display: false } } }
+                });
+            }
 
             // Chart 2: Customer Health Score
-            if (charts.health) charts.health.destroy();
-            const ctx2 = document.getElementById('healthScoreChart').getContext('2d');
-            charts.health = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Healthy (90-100)', 'At Risk (70-89)', 'Critical (<70)'],
-                    datasets: [{
-                        data: [18, 5, 1],
-                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
-                    }]
-                },
-                options: { ...chartDefaults, plugins: { legend: { position: 'bottom' } } }
-            });
+            if (charts.health) {
+                charts.health.update('none');
+            } else {
+                const ctx2 = document.getElementById('healthScoreChart').getContext('2d');
+                charts.health = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Healthy (90-100)', 'At Risk (70-89)', 'Critical (<70)'],
+                        datasets: [{
+                            data: [18, 5, 1],
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                        }]
+                    },
+                    options: { ...chartDefaults, plugins: { legend: { position: 'bottom' } } }
+                });
+            }
 
             // Chart 3: Top Customers by Support Hours
-            if (charts.support) charts.support.destroy();
-            const ctx3 = document.getElementById('supportHoursChart').getContext('2d');
-            charts.support = new Chart(ctx3, {
-                type: 'bar',
-                data: {
-                    labels: ['FinTech Corp', 'RetailData Inc', 'HealthSys LLC', 'EnergyTech', 'AutoManuf Co'],
-                    datasets: [{
-                        label: 'Support Hours',
-                        data: [42, 38, 31, 25, 22],
-                        backgroundColor: '#1e40af'
-                    }]
-                },
-                options: { ...chartDefaults, indexAxis: 'y', plugins: { legend: { display: false } } }
-            });
+            if (charts.support) {
+                charts.support.update('none');
+            } else {
+                const ctx3 = document.getElementById('supportHoursChart').getContext('2d');
+                charts.support = new Chart(ctx3, {
+                    type: 'bar',
+                    data: {
+                        labels: ['FinTech Corp', 'RetailData Inc', 'HealthSys LLC', 'EnergyTech', 'AutoManuf Co'],
+                        datasets: [{
+                            label: 'Support Hours',
+                            data: [42, 38, 31, 25, 22],
+                            backgroundColor: '#1e40af'
+                        }]
+                    },
+                    options: { ...chartDefaults, indexAxis: 'y', plugins: { legend: { display: false } } }
+                });
+            }
 
             // Chart 4: Resolution Time Trend
-            if (charts.resolution) charts.resolution.destroy();
-            const ctx4 = document.getElementById('resolutionTrendChart').getContext('2d');
-            charts.resolution = new Chart(ctx4, {
-                type: 'line',
-                data: {
-                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                    datasets: [
-                        {
-                            label: 'Avg Resolution Time (hours)',
-                            data: [8.5, 7.2, 6.8, 5.4],
-                            borderColor: '#10b981',
-                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                            tension: 0.4,
-                            fill: true
-                        },
-                        {
-                            label: 'Target SLA (6h)',
-                            data: [6, 6, 6, 6],
-                            borderColor: '#94a3b8',
-                            borderDash: [5, 5],
-                            tension: 0
-                        }
-                    ]
-                },
-                options: { ...chartDefaults, plugins: { legend: { position: 'bottom' } } }
-            });
+            if (charts.resolution) {
+                charts.resolution.update('none');
+            } else {
+                const ctx4 = document.getElementById('resolutionTrendChart').getContext('2d');
+                charts.resolution = new Chart(ctx4, {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                        datasets: [
+                            {
+                                label: 'Avg Resolution Time (hours)',
+                                data: [8.5, 7.2, 6.8, 5.4],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            },
+                            {
+                                label: 'Target SLA (6h)',
+                                data: [6, 6, 6, 6],
+                                borderColor: '#94a3b8',
+                                borderDash: [5, 5],
+                                tension: 0
+                            }
+                        ]
+                    },
+                    options: { ...chartDefaults, plugins: { legend: { position: 'bottom' } } }
+                });
+            }
         }
 
         function renderAlerts(runs) {
