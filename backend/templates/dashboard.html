@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Databricks PS Operations Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #fafbfc;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            opacity: 0.9;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .ai-status-badge {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .refresh-btn {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .refresh-btn:hover {
+            background: #1e3a8a;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+            transform: translateY(-1px);
+        }
+
+        .timestamp {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        .metric-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-delta {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .metric-delta.positive {
+            color: #10b981;
+        }
+
+        .metric-delta.negative {
+            color: #ef4444;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-card h3 {
+            font-size: 0.95rem;
+            color: #1e293b;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .chart-card canvas {
+            max-height: 280px;
+        }
+
+        .alerts-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .alerts-section h3 {
+            font-size: 1rem;
+            color: #1e293b;
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .alert-item {
+            padding: 1rem;
+            border-left: 3px solid #3b82f6;
+            background: #f8fafc;
+            margin-bottom: 0.75rem;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .alert-item:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .alert-item.critical {
+            border-left-color: #ef4444;
+        }
+
+        .alert-item.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .alert-item.success {
+            border-left-color: #10b981;
+        }
+
+        .alert-item h4 {
+            font-size: 0.9rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .alert-item p {
+            font-size: 0.85rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.25rem;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .metric-value {
+                font-size: 1.75rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .ai-status-badge {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div>
+                <h1>Databricks Professional Services Operations</h1>
+                <div class="header-subtitle">Real-time customer engagement monitoring & analytics</div>
+            </div>
+            <div class="ai-status-badge">
+                <span class="status-dot"></span>
+                <div>
+                    <div style="font-weight: 600;">AI Engine Active</div>
+                    <div style="opacity: 0.8; font-size: 0.75rem;">Model: sentence-transformers/all-MiniLM-L6-v2</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="controls">
+            <button class="refresh-btn" onclick="loadDashboard()">Refresh Data</button>
+            <span class="timestamp" id="lastUpdate"></span>
+        </div>
+
+        <!-- KPI Metrics -->
+        <div class="metrics-grid" id="metricsGrid"></div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Customer Issues by Category</h3>
+                <canvas id="issuesCategoryChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Customer Health Score Distribution</h3>
+                <canvas id="healthScoreChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Top Customers by Support Hours</h3>
+                <canvas id="supportHoursChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Issue Resolution Time Trend</h3>
+                <canvas id="resolutionTrendChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Active Alerts -->
+        <div class="alerts-section">
+            <h3>Active Customer Engagements & Action Items</h3>
+            <div id="alertsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        async function loadDashboard() {
+            document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleString()}`;
+
+            try {
+                const response = await fetch('/api/logs/recent');
+                const runs = await response.json();
+
+                renderMetrics(runs);
+                renderCharts(runs);
+                renderAlerts(runs);
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+            }
+        }
+
+        function renderMetrics(runs) {
+            const metrics = [
+                { label: 'Active Customer Engagements', value: '24', delta: '+3 this week', positive: true },
+                { label: 'SLA Compliance', value: '98.2%', delta: '+1.2% vs last month', positive: true },
+                { label: 'Avg Response Time', value: '2.3h', delta: '-0.7h improvement', positive: true },
+                { label: 'Critical Issues Open', value: '3', delta: '2 resolved today', positive: true }
+            ];
+
+            document.getElementById('metricsGrid').innerHTML = metrics.map(m => `
+                <div class="metric-card">
+                    <div class="metric-label">${m.label}</div>
+                    <div class="metric-value">${m.value}</div>
+                    <div class="metric-delta ${m.positive ? 'positive' : 'negative'}">${m.delta}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderCharts(runs) {
+            const chartDefaults = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: { family: 'Inter, sans-serif' },
+                            padding: 12,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            };
+
+            // Chart 1: Customer Issues by Category
+            if (charts.issues) charts.issues.destroy();
+            const ctx1 = document.getElementById('issuesCategoryChart').getContext('2d');
+            charts.issues = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['Performance Tuning', 'Schema Migration', 'Data Quality', 'Cost Optimization', 'Security Config', 'Integration'],
+                    datasets: [{
+                        label: 'Active Issues',
+                        data: [15, 12, 8, 6, 4, 3],
+                        backgroundColor: '#3b82f6'
+                    }]
+                },
+                options: { ...chartDefaults, plugins: { legend: { display: false } } }
+            });
+
+            // Chart 2: Customer Health Score
+            if (charts.health) charts.health.destroy();
+            const ctx2 = document.getElementById('healthScoreChart').getContext('2d');
+            charts.health = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Healthy (90-100)', 'At Risk (70-89)', 'Critical (<70)'],
+                    datasets: [{
+                        data: [18, 5, 1],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: { ...chartDefaults, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // Chart 3: Top Customers by Support Hours
+            if (charts.support) charts.support.destroy();
+            const ctx3 = document.getElementById('supportHoursChart').getContext('2d');
+            charts.support = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: ['FinTech Corp', 'RetailData Inc', 'HealthSys LLC', 'EnergyTech', 'AutoManuf Co'],
+                    datasets: [{
+                        label: 'Support Hours',
+                        data: [42, 38, 31, 25, 22],
+                        backgroundColor: '#1e40af'
+                    }]
+                },
+                options: { ...chartDefaults, indexAxis: 'y', plugins: { legend: { display: false } } }
+            });
+
+            // Chart 4: Resolution Time Trend
+            if (charts.resolution) charts.resolution.destroy();
+            const ctx4 = document.getElementById('resolutionTrendChart').getContext('2d');
+            charts.resolution = new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [
+                        {
+                            label: 'Avg Resolution Time (hours)',
+                            data: [8.5, 7.2, 6.8, 5.4],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Target SLA (6h)',
+                            data: [6, 6, 6, 6],
+                            borderColor: '#94a3b8',
+                            borderDash: [5, 5],
+                            tension: 0
+                        }
+                    ]
+                },
+                options: { ...chartDefaults, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        function renderAlerts(runs) {
+            const alerts = [
+                { title: 'FinTech Corp - Production Performance Degradation', message: 'Customer reports 40% slower query performance after migration to UC. Assigned to: Sarah K. | Priority: P1 | ETA: 4h', type: 'critical' },
+                { title: 'RetailData Inc - Cost Spike Detected', message: 'Monthly spend increased 180% due to inefficient cluster auto-scaling. Optimization recommendations prepared. Next call: Tomorrow 2pm', type: 'warning' },
+                { title: 'HealthSys LLC - Successful Go-Live', message: 'HIPAA-compliant data pipeline deployed. Zero issues in first 48 hours. Customer satisfaction: 9.5/10. Schedule follow-up in 2 weeks.', type: 'success' },
+                { title: 'EnergyTech - Training Request', message: '15 engineers need advanced Spark optimization training. Proposed dates: Dec 5-7. Revenue opportunity: $45k', type: 'warning' }
+            ];
+
+            document.getElementById('alertsContainer').innerHTML = alerts.map(a => `
+                <div class="alert-item ${a.type}">
+                    <h4>${a.title}</h4>
+                    <p>${a.message}</p>
+                </div>
+            `).join('');
+        }
+
+        // Load on page load
+        loadDashboard();
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadDashboard, 30000);
+    </script>
+</body>
+
+</html>

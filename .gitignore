@@ -1,6 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
 venv/
 .env
-__pycache__/
-*.db
-checkpoints/
+
+# Node
+node_modules/
+dist/
 .DS_Store
+
+# Databricks
+legacy_streamlit/

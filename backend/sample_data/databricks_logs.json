@@ -1,0 +1,39 @@
+[
+    {
+        "timestamp": "2023-10-27T02:00:05",
+        "level": "INFO",
+        "message": "Starting Spark job: Nightly ETL",
+        "stage": "initialization"
+    },
+    {
+        "timestamp": "2023-10-27T02:00:15",
+        "level": "INFO",
+        "message": "Reading from Delta table: sales_raw",
+        "stage": "extract"
+    },
+    {
+        "timestamp": "2023-10-27T02:05:30",
+        "level": "ERROR",
+        "message": "org.apache.spark.SparkException: Task failed while writing rows",
+        "stage": "transform",
+        "stack_trace": "Caused by: java.lang.OutOfMemoryError: GC overhead limit exceeded\n  at org.apache.spark.sql.execution.datasources.WriteTaskStatsTracker.getFinalStats"
+    },
+    {
+        "timestamp": "2023-10-27T02:05:31",
+        "level": "ERROR",
+        "message": "org.apache.spark.sql.AnalysisException: Table or view not found: temp_sales_agg",
+        "stage": "load"
+    },
+    {
+        "timestamp": "2023-10-27T02:05:32",
+        "level": "WARN",
+        "message": "Shuffle partition count (200) exceeds optimal range for data size (2GB)",
+        "stage": "optimize"
+    },
+    {
+        "timestamp": "2023-10-27T02:05:35",
+        "level": "ERROR",
+        "message": "Job aborted due to stage failure: Task 0 in stage 3.0 failed 4 times",
+        "stage": "finalize"
+    }
+]
