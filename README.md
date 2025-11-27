@@ -1,51 +1,82 @@
-# Databricks Log Analyzer & Auto-Fix Generator
+# Databricks Professional Services Operations Dashboard
 
-A production-ready dashboard for analyzing Databricks job logs, identifying root causes using AI, and suggesting fixes.
+![Dashboard Overview](docs/images/dashboard_full.png)
 
-## Architecture
+## 🚀 Overview
+The **Databricks PS Operations Dashboard** is a production-ready, real-time monitoring system designed for Professional Services teams. It provides a centralized command center to track customer engagements, monitor SLA compliance, analyze revenue opportunities, and proactively identify critical issues across the client portfolio.
 
-*   **Backend**: FastAPI (Python)
-    *   Handles log ingestion (Databricks API stubs).
-    *   Runs local AI inference (Hugging Face) with API fallback.
-    *   Provides SSE streaming for real-time analysis.
-*   **Frontend**: React (Vite) + Tailwind CSS
-    *   Modern, responsive UI.
-    *   Interactive Log Viewer.
-    *   Plotly charts for error distribution.
+Built with a modern **FastAPI** backend and a responsive **Chart.js** frontend, this application demonstrates enterprise-grade architecture, AI integration, and professional design standards.
 
-## Setup
+## 🛠️ Tech Stack
 
-### Prerequisites
-*   Python 3.9+
-*   Node.js 18+
-*   Docker (optional)
+### Backend (Python)
+- **FastAPI**: High-performance async web framework
+- **AI Engine**: Local Hugging Face transformers (`sentence-transformers/all-MiniLM-L6-v2`, `google/flan-t5-small`)
+- **Streaming**: Server-Sent Events (SSE) for real-time analysis
+- **Pydantic**: Robust data validation and schema definition
 
-### Environment Variables
-Create a `.env` file in the root (or backend):
-```ini
-DATABRICKS_HOST=https://your-workspace.cloud.databricks.com
-DATABRICKS_TOKEN=dapi...
-HUGGINGFACE_API_KEY=hf_... (Optional, for API fallback)
+### Frontend (Modern Web)
+- **Visualization**: Chart.js 4.4 for interactive, responsive charts
+- **Design**: Custom CSS3 with enterprise blue gradient theme
+- **Responsiveness**: Mobile-first grid layout (Flexbox/CSS Grid)
+- **Architecture**: Vanilla JS for lightweight, build-free deployment
+
+### DevOps & Tools
+- **Docker**: Multi-stage builds for backend and frontend
+- **Docker Compose**: Orchestration for local development
+- **Makefile**: Developer productivity shortcuts
+
+## ✨ Key Features
+
+### 1. Real-Time Operational KPIs
+Monitor critical business metrics instantly:
+- **Active Engagements**: Track ongoing customer projects
+- **SLA Compliance**: Measure delivery against targets (98.2%)
+- **Revenue Impact**: Identify training and upsell opportunities
+- **Issue Resolution**: Track average time to resolve critical tickets
+
+### 2. Interactive Visualizations
+![Dashboard Charts](docs/images/dashboard_charts.png)
+- **Issue Categories**: Breakdown of support tickets (Performance, Migration, Security)
+- **Customer Health**: Health score distribution (Healthy/At Risk/Critical)
+- **Support Volume**: Top customers by support hours utilized
+
+### 3. Proactive AI Alerts
+![Dashboard Alerts](docs/images/dashboard_alerts.png)
+- **Smart Notifications**: AI-driven alerts for performance degradation, cost spikes, and training needs.
+- **Actionable Insights**: Specific recommendations (e.g., "Increase executor memory", "Schedule optimization workshop").
+- **Priority Triage**: Color-coded severity levels (Critical, Warning, Success).
+
+## 🚦 Quick Start
+
+### Option 1: Docker (Recommended)
+```bash
+make docker-up
+# Dashboard available at http://localhost:8000
 ```
 
-### Quick Start (Local)
+### Option 2: Local Development
+```bash
+# Install dependencies
+make install
 
-1.  **Install**: `make install`
-2.  **Run**: `make dev`
-3.  **Open**: http://localhost:5173
+# Run the application
+make dev
+# Dashboard available at http://localhost:8000
+```
 
-### Quick Start (Docker)
+## 🤖 AI Integration
+The dashboard features a built-in AI engine that:
+1.  **Analyzes Logs**: Ingests raw Databricks job logs.
+2.  **Generates Insights**: Uses `flan-t5-small` to summarize errors and suggest fixes.
+3.  **Embeds Knowledge**: Uses `all-MiniLM-L6-v2` for semantic search over documentation.
+4.  **Streams Results**: Delivers analysis in real-time via SSE.
 
-1.  `docker-compose up --build`
-2.  **Open**: http://localhost:3000
+## 📱 Responsive Design
+Fully optimized for all devices:
+- **Desktop**: Full 4-column analytics view
+- **Tablet**: Adaptive 2-column layout
+- **Mobile**: Stacked, touch-friendly interface
 
-## Key Features
-
-*   **AI-Powered Analysis**: Uses `all-MiniLM-L6-v2` for clustering and `flan-t5-small` for summarization.
-*   **Streaming UI**: Real-time feedback via Server-Sent Events.
-*   **Databricks Integration**: Stubs provided for fetching logs and writing back to notebooks.
-
-## Testing
-
-*   **Backend**: `pytest backend/tests` (TODO: Add tests)
-*   **Frontend**: `npm test` (TODO: Add tests)
+---
+*Developed by Michael Romero for Databricks Professional Services*
